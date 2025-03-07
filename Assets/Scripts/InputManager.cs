@@ -32,7 +32,7 @@ public class InputManager : MonoBehaviour
 			if (movedDistance > thresholdMove) 
 			{
 				//if (Input.GetMouseButtonUp(0) || )
-				// MyLogger.Log("Stopped Dragging");
+				MyLogger.Log("Stopped Dragging");
 				// if scored, remove(hide) selected blocks 
 				selectedBlock = null;
 				isDragging = false;
@@ -46,6 +46,7 @@ public class InputManager : MonoBehaviour
 				var newTile = hit.collider.GetComponent<BlockObject>();
 				if (newTile != selectedBlock)
 				{
+					MyLogger.Log("Detected next block");
 					// Do switch animation
 					// if there is working match, do next logic
 					// if not, move the blocks to their original positions.
@@ -60,6 +61,7 @@ public class InputManager : MonoBehaviour
 				{
 					return;
 				}
+				MyLogger.Log("Detected first block");
 				var newTile = hit.collider.GetComponent<BlockObject>();
 				selectedBlock = newTile;
 				selectedPosition = Input.mousePosition;
@@ -71,7 +73,7 @@ public class InputManager : MonoBehaviour
 			// dragging started
 			if (Input.GetMouseButtonDown(0))
 			{
-				// MyLogger.Log("Started Dragging");
+				MyLogger.Log("Started Dragging");
 				isDragging = true;
 			}
 		}
