@@ -5,7 +5,7 @@ using static BlockObject;
 
 public class ObjectManager : MonoBehaviour
 {
-    List<BlockObject> blockObjectPool;
+    Stack<BlockObject> blockObjectPool;
     [SerializeField] int sizePool;
 	[SerializeField] BlockObject templatedBlock;
 
@@ -16,21 +16,25 @@ public class ObjectManager : MonoBehaviour
     {
 		Instance = this;
 
-		blockObjectPool = new List<BlockObject>();
+		blockObjectPool = new Stack<BlockObject>();
 
         for (int i = 0; i < sizePool; i++)
         {
             BlockObject newBlock = GameObject.Instantiate(templatedBlock);
-			newBlock.Setup(BlockObject.BlockType.Normal, BlockObject.BlockColor.Orange);
+			newBlock.Setup(BlockObject.BlockColor.Orange);
 			newBlock.transform.SetParent (this.transform);
 			newBlock.transform.localScale = Vector3.one;
 			newBlock.transform.localPosition = Vector3.zero;
-			blockObjectPool.Add(newBlock);
+			blockObjectPool.Push(newBlock);
 		}
 	}
 
-	public BlockObject GetBlock(BlockType type = BlockType.Normal, BlockColor color = BlockColor.Orange)
+	public BlockObject GetBlock(/*BlockType type = BlockType.Normal, */BlockColor color = BlockColor.Orange)
 	{
-		return blockObjectPool[0];
+		var block = blockObjectPool.Pop();
+
+		block.Setup(color);
+
+		return block;
 	}
 }

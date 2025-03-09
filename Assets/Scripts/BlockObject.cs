@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class BlockObject : MonoBehaviour
 {
-    [SerializeField] Sprite _sprite;
-    public enum BlockType
+	[SerializeField] Sprite[] sprites;
+	[SerializeField] SpriteRenderer spRenderer;
+	public enum BlockType
     {
         Normal
     }
@@ -36,9 +37,23 @@ public class BlockObject : MonoBehaviour
         
     }
 
-    public void Setup(BlockType type, BlockColor color)
+    public void Setup(//BlockType type,
+                      BlockColor color)
     {
-        this.type = type;
+        // this.type = type;
         this.color = color;
-    }
+
+        /*int spriteName = color switch
+        {
+            BlockColor.Blue => "blue_normal",
+            BlockColor.Green => "green_normal",
+            BlockColor.Red => "red_normal",
+			BlockColor.Yellow => "yellow_normal",
+			BlockColor.Purple => "purple_normal"
+			BlockColor.Orange => "orange_normal",
+
+        };*/
+
+		spRenderer.sprite = sprites[(int)color];
+	}
 }

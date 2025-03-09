@@ -44,4 +44,11 @@ public class PlaceHolder : MonoBehaviour
     {
         
     }
+
+    public void SetBlock(BlockObject block)
+    {
+        currentBlock = block;
+        block.transform.SetParent(transform);
+        block.transform.localPosition = Vector3.zero;
+	}
 }

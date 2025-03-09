@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static BlockObject;
 
 public class Board : MonoBehaviour
 {
     Dictionary<(int, int), PlaceHolder> blockHolders = new Dictionary<(int, int), PlaceHolder>();
+	//[SerializeField] List<int[]> defaultColors = new List<int[]>();
+	[SerializeField] List<PlaceHolderRow> defaultSetup;
 
-    // Start is called before the first frame update
-    void Start()
+	// Start is called before the first frame update
+	void Start()
     {
         var holders = GetComponentsInChildren<PlaceHolder>();
 
@@ -19,9 +22,13 @@ public class Board : MonoBehaviour
 			}
             blockHolders[(holder.Col, holder.Row)] = holder;
 
-            var block = ObjectManager.Instance.GetBlock();
+            int x = holder.Col + 3;
 
-            //Debug.Log($"{holder.Col}, {holder.Row} = ");
+			var block = ObjectManager.Instance.GetBlock(defaultSetup[x].GetColor(holder.Row));
+            holder.SetBlock(block); 
+            block.gameObject.SetActive(true);
+
+            Debug.Log($"{holder.Col}, {holder.Row} = {defaultSetup[x].GetColor(holder.Row)}");
 		}
 	}
 
@@ -29,5 +36,10 @@ public class Board : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public bool IsMatchAfterSwap(BlockObject a, BlockObject b)
+    {
+        return false;
     }
 }
