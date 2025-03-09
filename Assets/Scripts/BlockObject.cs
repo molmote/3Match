@@ -6,12 +6,12 @@ using UnityEngine;
 public class BlockObject : MonoBehaviour
 {
     [SerializeField] Sprite _sprite;
-    enum BlockType
+    public enum BlockType
     {
         Normal
     }
 
-    enum BlockColor
+	public enum BlockColor
 	{
 		Blue = 0,
         Green,
@@ -34,5 +34,11 @@ public class BlockObject : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void Setup(BlockType type, BlockColor color)
+    {
+        this.type = type;
+        this.color = color;
     }
 }
