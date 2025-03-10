@@ -5,23 +5,28 @@ using UnityEngine;
 public class PlaceHolder : MonoBehaviour
 {
     [SerializeField] int col;
-	[SerializeField] int row;
+    [SerializeField] int row;
     [SerializeField] BlockObject currentBlock;
 
-    enum HolderState
-    { 
+	public BlockObject Block
+	{
+		get { return currentBlock; }
+	}
+
+	enum HolderState
+    {
         Empty,
         Moving,
         Filled
     }
 
-	[SerializeField] HolderState state;
+    [SerializeField] HolderState state;
 
-	public int Col
+    public int Col
     {
         get
         {
-            return col; 
+            return col;
         }
     }
 
@@ -33,16 +38,16 @@ public class PlaceHolder : MonoBehaviour
         }
     }
 
-// Start is called before the first frame update
+    // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void SetBlock(BlockObject block)
@@ -50,5 +55,6 @@ public class PlaceHolder : MonoBehaviour
         currentBlock = block;
         block.transform.SetParent(transform);
         block.transform.localPosition = Vector3.zero;
-	}
+    }
+        
 }

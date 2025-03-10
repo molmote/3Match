@@ -9,6 +9,14 @@ public class Board : MonoBehaviour
 	//[SerializeField] List<int[]> defaultColors = new List<int[]>();
 	[SerializeField] List<PlaceHolderRow> defaultSetup;
 
+	public static Board Instance
+	{ get; private set; }
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
 	// Start is called before the first frame update
 	void Start()
     {
@@ -41,5 +49,16 @@ public class Board : MonoBehaviour
     public bool IsMatchAfterSwap(BlockObject a, BlockObject b)
     {
         return false;
+    }
+
+    public bool SwapBlock(PlaceHolder a, PlaceHolder b)
+    {
+        if (a != b)
+        {
+            BlockObject tmp = a.Block;
+            a.SetBlock(b.Block);
+            b.SetBlock(tmp);
+		}
+        return true;
     }
 }

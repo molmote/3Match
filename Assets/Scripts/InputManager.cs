@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
 	[SerializeField] float thresholdMove;
 
 	private bool isDragging = false;
-	private BlockObject selectedBlock;
+	private PlaceHolder selectedBlock;
 	Vector3 selectedPosition;
 	private float time = 0;
 
@@ -29,13 +29,11 @@ public class InputManager : MonoBehaviour
 		{
 			// dragging finished
 			float movedDistance = Vector3.Distance (Input.mousePosition, selectedPosition);
-			if (movedDistance > thresholdMove) 
+			if (movedDistance > thresholdMove)
 			{
+				// MyLogger.Log($"{movedDistance} > {thresholdMove}");
 				//if (Input.GetMouseButtonUp(0) || )
-				MyLogger.Log("Stopped Dragging");
 				// if scored, remove(hide) selected blocks 
-				selectedBlock = null;
-				isDragging = false;
 
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
@@ -43,29 +41,23 @@ public class InputManager : MonoBehaviour
 				{
 					return;
 				}
-				var newTile = hit.collider.GetComponent<BlockObject>();
+				var newTile = hit.collider.GetComponent<PlaceHolder>();
 				if (newTile != selectedBlock)
 				{
-					MyLogger.Log("Detected next block");
+					MyLogger.Log($"Detected next block {newTile.Block.name} ({newTile.Col},{newTile.Row})");
 					// Do switch animation
 					// if there is working match, do next logic
 					// if not, move the blocks to their original positions.
+
+					Board.Instance.SwapBlock(newTile, selectedBlock);
+					selectedBlock = null;
+					isDragging = false;
+					MyLogger.Log("Stopped Dragging");
 				}
 			}
 			// dragging  
 			else
 			{
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-				RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
-				if (hit.collider == null)   // corresponding block is not active
-				{
-					return;
-				}
-				MyLogger.Log("Detected first block");
-				var newTile = hit.collider.GetComponent<BlockObject>();
-				selectedBlock = newTile;
-				selectedPosition = Input.mousePosition;
-				// RefreshSelection(newTile);
 			}
 		}
 		else
@@ -74,6 +66,19 @@ public class InputManager : MonoBehaviour
 			if (Input.GetMouseButtonDown(0))
 			{
 				MyLogger.Log("Started Dragging");
+
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
+				if (hit.collider == null)   // corresponding block is not active
+				{
+					return;
+				}
+				var newTile = hit.collider.GetComponent<PlaceHolder>();
+				MyLogger.Log($"Detected first block {newTile.Block.name} ({newTile.Col},{newTile.Row})");
+				selectedBlock = newTile;// PlaceHolder.Block;
+				selectedPosition = Input.mousePosition;
+				// RefreshSelection(newTile);
+
 				isDragging = true;
 			}
 		}
