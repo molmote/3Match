@@ -13,13 +13,13 @@ public class InputManager : MonoBehaviour
 	[SerializeField] float thresholdMove;
 
 	private bool isDragging = false;
+	private bool isMoving = false;
 	private PlaceHolder selectedBlock;
 	Vector3 selectedPosition;
 	private float time = 0;
 
 	// [SerializeField] GameData gameData; // uses scriptable object for customized settings
 
-	// Update is called once per frame
 	void Update()
     {
 		time += Time.deltaTime;
@@ -28,10 +28,10 @@ public class InputManager : MonoBehaviour
 		if (isDragging)
 		{
 			// dragging finished
-			float movedDistance = Vector3.Distance (Input.mousePosition, selectedPosition);
-			if (movedDistance > thresholdMove)
+			//float movedDistance = Vector3.Distance (Input.mousePosition, selectedPosition);
+			//MyLogger.Log($"{movedDistance} > {thresholdMove}");
+			//if (movedDistance > thresholdMove)
 			{
-				// MyLogger.Log($"{movedDistance} > {thresholdMove}");
 				//if (Input.GetMouseButtonUp(0) || )
 				// if scored, remove(hide) selected blocks 
 
@@ -49,15 +49,42 @@ public class InputManager : MonoBehaviour
 					// if there is working match, do next logic
 					// if not, move the blocks to their original positions.
 
+					// do check swap
+
 					Board.Instance.SwapBlock(newTile, selectedBlock);
+					bool con1 = Board.Instance.CheckMatch4(newTile);
+					bool con2 = Board.Instance.CheckMatch4(selectedBlock);
+					if (con1 || con2)
+					{ 
+						if(con1) Board.Instance.CheckMatch4(newTile);
+						if(con2) Board.Instance.CheckMatch4(selectedBlock);
+						///Board.Instance.SwapBlock(newTile, selectedBlock);
+						MyLogger.Log("CheckMatch4");
+					}
+					else if (Board.Instance.CheckMatch3(newTile) || Board.Instance.CheckMatch3(selectedBlock))
+					{
+						MyLogger.Log("CheckMatch3 CheckMatch3");
+						Board.Instance.CheckMatch4(newTile);
+						Board.Instance.CheckMatch4(selectedBlock);
+						///Board.Instance.SwapBlock(newTile, selectedBlock);
+					}
+					else
+					{
+						int j = 0;
+						Board.Instance.SwapBlock(newTile, selectedBlock);
+						// do moving and revert animation
+					}
+					
 					selectedBlock = null;
 					isDragging = false;
+					isMoving = true; // clear after one second
 					MyLogger.Log("Stopped Dragging");
 				}
 			}
 			// dragging  
-			else
+			//else
 			{
+			//	isDragging = false;
 			}
 		}
 		else

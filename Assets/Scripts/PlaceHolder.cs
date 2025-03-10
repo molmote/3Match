@@ -21,8 +21,9 @@ public class PlaceHolder : MonoBehaviour
     }
 
     [SerializeField] HolderState state;
+	public bool visited;
 
-    public int Col
+	public int Col
     {
         get
         {
@@ -45,10 +46,10 @@ public class PlaceHolder : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-
-    }
+        visited = false;
+	}
 
     public void SetBlock(BlockObject block)
     {

@@ -25,6 +25,8 @@ public class BlockObject : MonoBehaviour
 	[SerializeField] BlockColor color;
 	[SerializeField] BlockType type;
 
+    public BlockColor Color { get { return color; }}
+
 	// Start is called before the first frame update
 	void Start()
     {
@@ -35,6 +37,11 @@ public class BlockObject : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public static bool Check(BlockObject a, BlockObject b)
+    {
+        return a.Color == b.Color;
     }
 
     public void Setup(//BlockType type,
