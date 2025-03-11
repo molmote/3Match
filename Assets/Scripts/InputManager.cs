@@ -59,22 +59,10 @@ public class InputManager : MonoBehaviour
 					Board.Instance.SwapBlock(newTile, selectedBlock);
 					bool con1 = Board.Instance.CheckMatch4(newTile);
 					bool con2 = Board.Instance.CheckMatch4(selectedBlock);
-					if (con1 || con2)
+					bool con3 = Board.Instance.CheckMatch3(newTile);
+					bool con4 = Board.Instance.CheckMatch3(selectedBlock);
+					if (!con1 && !con2 && !con3 && !con4)
 					{ 
-						//if(con1) Board.Instance.CheckMatch4(newTile);
-						//if(con2) Board.Instance.CheckMatch4(selectedBlock);
-						///Board.Instance.SwapBlock(newTile, selectedBlock);
-						MyLogger.Log("CheckMatch4");
-					}
-					else if (Board.Instance.CheckMatch3(newTile) || Board.Instance.CheckMatch3(selectedBlock))
-					{
-						MyLogger.Log("CheckMatch3 CheckMatch3");
-						//Board.Instance.CheckMatch4(newTile);
-						//Board.Instance.CheckMatch4(selectedBlock);
-						///Board.Instance.SwapBlock(newTile, selectedBlock);
-					}
-					else
-					{
 						int j = 0;
 						Board.Instance.SwapBlock(newTile, selectedBlock);
 						// do moving and revert animation
@@ -108,12 +96,14 @@ public class InputManager : MonoBehaviour
 					return;
 				}
 				var newTile = hit.collider.GetComponent<PlaceHolder>();
-				MyLogger.Log($"Detected first block {newTile.Block.name} ({newTile.Col},{newTile.Row})");
-				selectedBlock = newTile;// PlaceHolder.Block;
-				selectedPosition = Input.mousePosition;
-				// RefreshSelection(newTile);
+				if (newTile.Block != null)
+				{
+					MyLogger.Log($"Detected first block {newTile.Block.name} ({newTile.Col},{newTile.Row})");
+					selectedBlock = newTile;// PlaceHolder.Block;
+					selectedPosition = Input.mousePosition;
 
-				isDragging = true;
+					isDragging = true;
+				}
 			}
 		}
 	}

@@ -19,7 +19,8 @@ public class BlockObject : MonoBehaviour
         Red,
         Yellow,
         Purple,
-        Orange
+        Orange,
+        None
     }
 
 	[SerializeField] BlockColor color;

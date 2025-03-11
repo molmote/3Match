@@ -29,11 +29,17 @@ public class ObjectManager : MonoBehaviour
 		}
 	}
 
-	public BlockObject GetBlock(/*BlockType type = BlockType.Normal, */BlockColor color = BlockColor.Orange)
+	public BlockObject GetBlock(/*BlockType type = BlockType.Normal, */bool showActive = true, BlockColor color = BlockColor.None)
 	{
+		if (color == BlockColor.None)
+		{
+			var enumValues = System.Enum.GetValues(enumType: typeof(BlockColor));
+			color = (BlockColor) enumValues.GetValue(Random.Range(0, enumValues.Length-1));
+		}
+
 		var block = blockObjectPool.Pop();
 
-		block.gameObject.SetActive(true);
+		block.gameObject.SetActive(showActive);
 		block.Setup(color);
 
 		return block;
