@@ -25,6 +25,11 @@ public class InputManager : MonoBehaviour
 		time += Time.deltaTime;
 		// UpdateTime(time);
 
+		if (Board.Instance.IsMoving()) // prevent interruption
+		{
+			return;
+		}
+
 		if (isDragging)
 		{
 			// dragging finished
@@ -56,16 +61,16 @@ public class InputManager : MonoBehaviour
 					bool con2 = Board.Instance.CheckMatch4(selectedBlock);
 					if (con1 || con2)
 					{ 
-						if(con1) Board.Instance.CheckMatch4(newTile);
-						if(con2) Board.Instance.CheckMatch4(selectedBlock);
+						//if(con1) Board.Instance.CheckMatch4(newTile);
+						//if(con2) Board.Instance.CheckMatch4(selectedBlock);
 						///Board.Instance.SwapBlock(newTile, selectedBlock);
 						MyLogger.Log("CheckMatch4");
 					}
 					else if (Board.Instance.CheckMatch3(newTile) || Board.Instance.CheckMatch3(selectedBlock))
 					{
 						MyLogger.Log("CheckMatch3 CheckMatch3");
-						Board.Instance.CheckMatch4(newTile);
-						Board.Instance.CheckMatch4(selectedBlock);
+						//Board.Instance.CheckMatch4(newTile);
+						//Board.Instance.CheckMatch4(selectedBlock);
 						///Board.Instance.SwapBlock(newTile, selectedBlock);
 					}
 					else
@@ -79,6 +84,8 @@ public class InputManager : MonoBehaviour
 					isDragging = false;
 					isMoving = true; // clear after one second
 					MyLogger.Log("Stopped Dragging");
+
+					Board.Instance.ClearBlock();
 				}
 			}
 			// dragging  

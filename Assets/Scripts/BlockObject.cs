@@ -44,6 +44,11 @@ public class BlockObject : MonoBehaviour
         return a.Color == b.Color;
     }
 
+    public void Clear()
+    {
+        gameObject.SetActive(false);
+    }
+
     public void Setup(//BlockType type,
                       BlockColor color)
     {

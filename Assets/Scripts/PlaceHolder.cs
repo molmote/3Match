@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unity.Collections.AllocatorManager;
 
 public class PlaceHolder : MonoBehaviour
 {
@@ -51,11 +52,22 @@ public class PlaceHolder : MonoBehaviour
         visited = false;
 	}
 
-    public void SetBlock(BlockObject block)
+    public void SetBlock(BlockObject block, bool onlyParent = false)
     {
         currentBlock = block;
-        block.transform.SetParent(transform);
-        block.transform.localPosition = Vector3.zero;
+        if(!onlyParent)
+        {
+			block.transform.SetParent(transform);
+			block.transform.localPosition = Vector3.zero;
+		}			
     }
-        
+
+	public void ClearBlock()
+	{
+        currentBlock.Clear();
+
+		ObjectManager.Instance.ReturnBlock(currentBlock);
+
+		currentBlock = null;
+	}
 }

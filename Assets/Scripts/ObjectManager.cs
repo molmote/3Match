@@ -33,8 +33,17 @@ public class ObjectManager : MonoBehaviour
 	{
 		var block = blockObjectPool.Pop();
 
+		block.gameObject.SetActive(true);
 		block.Setup(color);
 
 		return block;
+	}
+
+	public void ReturnBlock(BlockObject used)
+	{
+		used.transform.SetParent(this.transform);
+		used.transform.localPosition = Vector3.zero;
+		used.gameObject.SetActive(false);
+		blockObjectPool.Push(used);
 	}
 }
