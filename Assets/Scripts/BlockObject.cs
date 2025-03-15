@@ -26,10 +26,18 @@ public class BlockObject : MonoBehaviour
 	[SerializeField] BlockColor color;
 	[SerializeField] BlockType type;
 
-    public BlockColor Color { get { return color; }}
+    public BlockColor Color { 
+        get { return color; }
+    }
 
-	// Start is called before the first frame update
-	void Start()
+    public Color Alpha
+    {
+		get { return spRenderer.color; }
+		set { spRenderer.color = value; }
+	}
+
+    // Start is called before the first frame update
+    void Start()
     {
         
     }

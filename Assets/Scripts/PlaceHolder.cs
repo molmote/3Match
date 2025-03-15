@@ -14,14 +14,14 @@ public class PlaceHolder : MonoBehaviour
 		get { return currentBlock; }
 	}
 
-	enum HolderState
+	public enum HolderState
     {
         Empty,
         Moving,
         Filled
     }
 
-    [SerializeField] HolderState state;
+    public HolderState state;
 	public bool visited;
 
 	public int Col
@@ -52,10 +52,10 @@ public class PlaceHolder : MonoBehaviour
         visited = false;
 	}
 
-    public void SetBlock(BlockObject block, bool onlyParent = false)
+    public void SetBlock(BlockObject block, bool changeParent = true)
     {
         currentBlock = block;
-        if(!onlyParent)
+        if(changeParent)
         {
 			block.transform.SetParent(transform);
 			block.transform.localPosition = Vector3.zero;

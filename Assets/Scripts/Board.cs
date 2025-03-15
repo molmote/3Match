@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using static BlockObject;
 using static Unity.Collections.AllocatorManager;
@@ -10,8 +11,6 @@ using static Unity.Collections.AllocatorManager;
 public class Board : MonoBehaviour
 {
     Dictionary<(int, int), PlaceHolder> blockHolders = new Dictionary<(int, int), PlaceHolder>();
-    List<List<BlockObject>> objectList = new List<List<BlockObject>>();
-	//[SerializeField] List<int[]> defaultColors = new List<int[]>();
 	[SerializeField] List<PlaceHolderRow> defaultSetup;
 	[SerializeField] Dictionary<(int,int), PlaceHolder> blocks2Clear = new Dictionary<(int, int), PlaceHolder>();
 	[SerializeField] List<PlaceHolder> blocks2Fill;
@@ -28,47 +27,72 @@ public class Board : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-        var holders = GetComponentsInChildren<PlaceHolder>();
+		holders = GetComponentsInChildren<PlaceHolder>();
+		RestartDefault();
+	}
 
-        for (int i = 0; i < 7; i++) 
-        { 
-            List<BlockObject> col = new List<BlockObject>();
-            for(int j = 0; j < 6; j++)
-            {
-                col.Add(null);
-            }
+	PlaceHolder[] holders;
 
-            objectList.Add(col);
-        }
-
-
-		foreach (var holder in holders) 
-        {
-            if (blockHolders.ContainsKey((holder.Col, holder.Row)))
-            {
-				Debug.Log($"{holder.Col}, {holder.Row} = duplicated");
-			}
-            blockHolders[(holder.Col, holder.Row)] = holder;
-
-            int x = holder.Col + 3;
-
-			var block = ObjectManager.Instance.GetBlock(true, defaultSetup[x].GetColor(holder.Row));
-            holder.SetBlock(block); 
-            block.gameObject.SetActive(true);
-            objectList[x][holder.Row] = block;
-
-            Debug.Log($"{holder.Col}, {holder.Row} = {defaultSetup[x].GetColor(holder.Row)}");
+	public void ClearAll()
+	{
+		foreach (var holder in blockHolders.Values)
+		{
+			holder.ClearBlock();
 		}
 	}
 
-    // Update is called once per frame
-    void Update()
+	public void RestartDefault()
+	{
+		MyLogger.Log("RestartDefault");
+		ClearAll();
+
+		foreach (var holder in holders)
+		{
+			if (blockHolders.ContainsKey((holder.Col, holder.Row)))
+			{
+				MyLogger.Log($"{holder.Col}, {holder.Row} = duplicated");
+			}
+			blockHolders[(holder.Col, holder.Row)] = holder;
+
+			int x = holder.Col + 3;
+
+			var block = ObjectManager.Instance.GetBlock(true, defaultSetup[x].GetColor(holder.Row));
+			holder.SetBlock(block);
+			block.gameObject.SetActive(true);
+
+			MyLogger.Log($"{holder.Col}, {holder.Row} = {defaultSetup[x].GetColor(holder.Row)}");
+		}
+	}
+
+	public void ResetRandom()
+	{
+		MyLogger.Log("ResetRandom");
+		ClearAll();
+
+		foreach (var holder in holders)
+		{
+			if (blockHolders.ContainsKey((holder.Col, holder.Row)))
+			{
+				MyLogger.Log($"{holder.Col}, {holder.Row} = duplicated");
+			}
+			blockHolders[(holder.Col, holder.Row)] = holder;
+
+			int x = holder.Col + 3;
+
+			var block = ObjectManager.Instance.GetBlock(true, BlockColor.None);
+			holder.SetBlock(block);
+			block.gameObject.SetActive(true);
+		}
+	}
+
+	// Update is called once per frame
+	void Update()
     {
         if (blocks2Clear.Count > 0)
         {
             if (movingBlocks == 0)
 			{
-				Debug.Break();
+				// Debug.Break();
 				blocks2Clear.Clear();
 
 				//SwapBlock(newTile, selectedBlock);
@@ -82,9 +106,9 @@ public class Board : MonoBehaviour
 						///Board.Instance.SwapBlock(newTile, selectedBlock);
 						MyLogger.Log("CheckMatch4");
 					}
-					else if (Board.Instance.CheckMatch3(elem))
+					if (Board.Instance.CheckMatch3(elem))
 					{
-						MyLogger.Log("CheckMatch3 CheckMatch3");
+						MyLogger.Log("CheckMatch3");
 						//Board.Instance.CheckMatch4(newTile);
 						//Board.Instance.CheckMatch4(selectedBlock);
 						///Board.Instance.SwapBlock(newTile, selectedBlock);
@@ -95,33 +119,6 @@ public class Board : MonoBehaviour
 			}
         }
 	}
-
-    /*public bool IsMatchAfterSwap(PlaceHolder a, PlaceHolder b)
-    {
-        bool ret = FindMatch(a);
-        ret &= FindMatch(b);
-
-        return ret;
-    }
-
-    public bool FindMatch(PlaceHolder a)
-    {
-        int left = a.Col - 2 >= -3 ? a.Col : -3;
-        int right = a.Col + 2 < 3 ? a.Col : 3;
-
-        int top = a.Row - 2 >= 0 ? a.Col : 0;
-        int bot = a.Row + 2 < 6 ? a.Col : 5;
-
-        for(int i = left; i < right; i++)
-        {
-            for (int j = top; j < bot; j++)
-			{
-                var block = blockHolders[(i, j)];
-
-			}
-		}
-		return true;
-	}*/
 
     // check for all 3 possible combinations
     public bool CheckMatch3(PlaceHolder block)
@@ -251,14 +248,48 @@ public class Board : MonoBehaviour
 		return true;
 	}
 
+    public bool CheckSwapBlock(PlaceHolder a, PlaceHolder b)
+    {
+        SwapBlock(a, b);
+		bool con1 = Board.Instance.CheckMatch4(a);
+		bool con2 = Board.Instance.CheckMatch4(b);
+		bool con3 = Board.Instance.CheckMatch3(a);
+		bool con4 = Board.Instance.CheckMatch3(b);
+
+        bool condition = con1 || con2 || con3 || con4;
+
+        var seq = DOTween.Sequence();
+		seq.Append(a.Block.transform.DOMove(b.Block.transform.position, 0.2f));
+        seq.Join(b.Block.transform.DOMove(a.Block.transform.position, 0.2f));
+		seq.AppendCallback( () =>
+		{
+			if (!condition)
+			{
+				// do moving and revert animation
+				a.Block.transform.DOMove(b.Block.transform.position, 0.2f);
+				b.Block.transform.DOMove(a.Block.transform.position, 0.2f);
+
+				SwapBlock(a, b);
+			}
+            else
+            {
+				Board.Instance.ClearBlock();
+			}
+		}
+        );
+
+        return condition;
+	}
+
+
     public bool SwapBlock(PlaceHolder a, PlaceHolder b)
     {
         if (a != b)
         {
             BlockObject tmp = a.Block;
 
-			a.SetBlock(b.Block);
-            b.SetBlock(tmp);
+            a.SetBlock(b.Block, false); ;
+            b.SetBlock(tmp, false);
 		}
         return true;
     }
@@ -273,8 +304,14 @@ public class Board : MonoBehaviour
 
         foreach (var block in blocks2Clear.Values)
         {
-            block.ClearBlock();
-        }
+			/*var saved = block.Block;
+			DOTween.ToAlpha(() => saved.Alpha, x => saved.Alpha = x, 0, 1).OnComplete(() =>
+			{ 
+				saved.gameObject.SetActive(false);
+			});*/
+
+			block.ClearBlock();
+		}
 
         int newBlocksSize = blocks2Clear.Count;
         var blocksSorted = new List<PlaceHolder>();
@@ -292,12 +329,10 @@ public class Board : MonoBehaviour
             row++;
 		}
 
-		//blocks2Clear.Clear();
-
-        FallLogic();
+        FallLogic(newBlocksSize);
         var blockSorted2 = blocksSorted.OrderByDescending(x => Mathf.Abs(x.Col) + x.Row).ToList();
 		PopuplateBlocks(blockSorted2);
-		Debug.Break();
+		// Debug.Break();
 	}
 
     public enum BoardState
@@ -309,10 +344,10 @@ public class Board : MonoBehaviour
     private int movingBlocks = 0;
     public bool IsMoving()
     {
-        return movingBlocks > 0;
+        return movingBlocks > 0 || blocks2Clear.Count > 0;
 	}
 
-    public void FallLogic()
+    public void FallLogic(int destroySize)
     {
         //List<BlockObject>
 
@@ -337,12 +372,13 @@ public class Board : MonoBehaviour
 					var destination = blockHolders[(block.Col, block.Row + fallLength)];
 					var diff = (destination.transform.localPosition - block.transform.localPosition);
 
-					// blocks2Clear[(block.Col, block.Row)] = block;
-
 					movingBlocks++;
-					// blockHolders[(block.Col, block.Row)] = null;
-					block.Block.transform.DOMoveY(destination.transform.position.y, fallLength / 2.0f).OnComplete(() =>
-					{
+					var seq = DOTween.Sequence();
+					block.state = PlaceHolder.HolderState.Moving;
+					seq.Append(block.Block.transform.DOMoveY(destination.transform.position.y, fallLength / 2.0f));
+
+					seq.AppendCallback(() =>
+					 {
 						blockHolders[(block.Col, block.Row + fallLength)].SetBlock(copyBlock, true);
 						movingBlocks--;
 						MyLogger.Log($"Moving Finished moved {fallLength}, and {block.Col},{block.Row + fallLength} now has {copyBlock.Color} color");
@@ -355,19 +391,32 @@ public class Board : MonoBehaviour
 					MyLogger.Log($"Moving Failed to move {block.Col},{block.Row+fallLength} block");
 				}
 			}
+		}
 
-            }
+		// horizontally move then.. 실제 Toy party에서처럼 좌측으로 빈 공간이 있을 때 처리하는 로직을 구현하려 시도.
+		/*foreach (var block in blockHolders.Values)
+		{
+			int slideLength = 0;
+			if (block.state != PlaceHolder.HolderState.Empty)
+			{
+				continue;
+			}
 
-    }
+			slideLength++;
+			}
+
+		}*/
+
+	}
 
     public void PopuplateBlocks(List<PlaceHolder> list2Fill)
     {
         var block00 = blockHolders[(0, 0)];
 
-        float interval = 0f;
+        float interval = -0.8f;
         foreach (var destination in list2Fill)
         {
-            interval += 0.5f;
+            interval += 0.8f;
 			var block = ObjectManager.Instance.GetBlock(false);
             block.transform.position = positionReplenish.transform.position;
             movingBlocks++;
@@ -381,8 +430,10 @@ public class Board : MonoBehaviour
 			sequence.Append(block.transform.DOMove(positionReplenish.transform.position, 0.3f).SetDelay(interval));
             sequence.AppendCallback( () => { block.gameObject.SetActive(true); } );
             sequence.Append(block.transform.DOMove(block00.transform.position, 0.3f));
-            sequence.Append(block.transform.DOMove(destinationCol.transform.position, distanceX * 0.5f));
-            sequence.Append(block.transform.DOMove(destination.transform.position, distanceY * 0.5f));
+			if (destination.Col != 0)
+				sequence.Append(block.transform.DOMove(destinationCol.transform.position, distanceX * 0.5f));
+			// if (destination.Row != 0)
+				sequence.Append(block.transform.DOMove(destination.transform.position, distanceY * 0.5f));
             sequence.AppendCallback(() =>
             {
                 movingBlocks--;
@@ -394,8 +445,6 @@ public class Board : MonoBehaviour
 
 			/*block.transform.DOMove(block00.transform.position, 0.3f).SetDelay(interval).OnComplete(() =>
             {
-				
-
 				block.transform.DOMove(destinationCol.transform.position, distanceX * 0.5f).OnComplete(() =>
                 {
                     block.transform.DOMove(destination.transform.position, distanceY * 0.5f).OnComplete(() =>
